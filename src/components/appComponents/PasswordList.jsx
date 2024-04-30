@@ -7,7 +7,13 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, Check, ChevronDown, MoreHorizontal, Search } from "lucide-react";
+import {
+  ArrowUpDown,
+  Check,
+  ChevronDown,
+  MoreHorizontal,
+  Search,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -31,56 +37,75 @@ import {
 } from "@/components/ui/table";
 import axios from "axios";
 import { toast } from "../ui/use-toast";
-import store from "@/store";
+import { useSelector } from "react-redux";
 
-const getTokenFromStore = () => {
-  const state = store.getState();
-  return state.auth.token;
-};
+export default function PasswordDataTable({ passwords }) {
+  const [data, setData] = React.useState(passwords);
+  const [sorting, setSorting] = React.useState([]);
+  const [columnFilters, setColumnFilters] = React.useState([]);
+  const [columnVisibility, setColumnVisibility] = React.useState({});
+  const [rowSelection, setRowSelection] = React.useState({});
+  const token = useSelector((state) => state.auth.token);
 
-// Define columns for the password table
-export const columns = [
-  {
-    accessorKey: "id",
-    header: "ID",
-    cell: ({ row }) => <div>{row.getValue("id")}</div>,
-  },
-  {
-    accessorKey: "title",
-    header: "Title",
-    cell: ({ row }) => <div>{row.getValue("title")}</div>,
-  },
-  {
-    accessorKey: "notes",
-    header: "Notes",
-    cell: ({ row }) => (
-      <div className="w-[300px] truncate mx-auto">{row.getValue("notes")}</div>
-    ),
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const password = row.original;
-      const token = getTokenFromStore();
+  React.useEffect(() => {
+    setData(passwords);
+  }, [passwords]);
 
-      const handleDelete = async () => {
-        try {
-          const response = await axios.delete(
-            `https://api-strongify.up.railway.app/api/passwords/${password.id}/`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
+  const columns = [
+    {
+      accessorKey: "id",
+      header: "ID",
+      cell: ({ row }) => <div>{row.getValue("id")}</div>,
+    },
+    {
+      accessorKey: "title",
+      header: "Title",
+      cell: ({ row }) => <div>{row.getValue("title")}</div>,
+    },
+    {
+      accessorKey: "notes",
+      header: "Notes",
+      cell: ({ row }) => (
+        <div className="w-[300px] truncate mx-auto">
+          {row.getValue("notes")}
+        </div>
+      ),
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const password = row.original;
+
+        const handleDelete = async () => {
+          try {
+            const response = await axios.delete(
+              `https://api-strongify.up.railway.app/api/passwords/${password.id}/`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            if (response.status === 204) {
+              toast({
+                title: <p className="text-md">Deleted.</p>,
+                className: "bg-black text-white rounded-lg shadow-lg",
+              });
+              setData((prevData) =>
+                prevData.filter((p) => p.id !== password.id)
+              );
+            } else {
+              toast({
+                title: (
+                  <p className="text-red-500 text-md">
+                    Error deleting password.
+                  </p>
+                ),
+                className: "bg-black rounded-lg shadow-lg",
+              });
             }
-          );
-          if (response.status === 204) {
-            toast({
-              title: <p className="text-md">Deleted.</p>,
-              className: "bg-black text-white rounded-lg shadow-lg",
-            });
-            window.location.reload();
-          } else {
+          } catch (error) {
             toast({
               title: (
                 <p className="text-red-500 text-md">Error deleting password.</p>
@@ -88,67 +113,56 @@ export const columns = [
               className: "bg-black rounded-lg shadow-lg",
             });
           }
-        } catch (error) {
+        };
+
+        const handlePasswordCopy = () => {
+          navigator.clipboard.writeText(password.password);
           toast({
             title: (
-              <p className="text-red-500 text-md">Error deleting password.</p>
+              <p className="text-white text-md flex gap-2 items-center">
+                <Check />
+                Copied to clipboard!
+              </p>
             ),
             className: "bg-black rounded-lg shadow-lg",
           });
-        }
-      };
+        };
 
-      const handlePasswordCopy = () => {
-        navigator.clipboard.writeText(password.password);
-        toast({
-          title: (
-            <p className="text-white text-md flex gap-2 items-center">
-              <Check />
-              Copied to clipboard!
-            </p>
-          ),
-          className: "bg-black rounded-lg shadow-lg",
-        });
-      };
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w -4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="bg-white dark:bg-black border border-black dark:border-white text-black dark:text-white rounded"
-          >
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator className="border border-black dark:border-white" />
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={handlePasswordCopy}
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w -4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="bg-white dark:bg-black border border-black dark:border-white text-black dark:text-white rounded"
             >
-              Copy Password
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer" onClick={handleDelete}>
-              Delete Password
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator className="border border-black dark:border-white" />
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={handlePasswordCopy}
+              >
+                Copy Password
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={handleDelete}
+              >
+                Delete Password
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
     },
-  },
-];
-
-export default function PasswordDataTable({ passwords }) {
-  const [sorting, setSorting] = React.useState([]);
-  const [columnFilters, setColumnFilters] = React.useState([]);
-  const [columnVisibility, setColumnVisibility] = React.useState({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  ];
 
   const table = useReactTable({
-    data: passwords,
+    data: data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
