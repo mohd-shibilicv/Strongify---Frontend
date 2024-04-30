@@ -7,7 +7,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal, Search } from "lucide-react";
+import { ArrowUpDown, Check, ChevronDown, MoreHorizontal, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -98,6 +98,19 @@ export const columns = [
         }
       };
 
+      const handlePasswordCopy = () => {
+        navigator.clipboard.writeText(password.password);
+        toast({
+          title: (
+            <p className="text-white text-md flex gap-2 items-center">
+              <Check />
+              Copied to clipboard!
+            </p>
+          ),
+          className: "bg-black rounded-lg shadow-lg",
+        });
+      };
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -114,7 +127,7 @@ export const columns = [
             <DropdownMenuSeparator className="border border-black dark:border-white" />
             <DropdownMenuItem
               className="cursor-pointer"
-              onClick={() => navigator.clipboard.writeText(password.password)}
+              onClick={handlePasswordCopy}
             >
               Copy Password
             </DropdownMenuItem>
