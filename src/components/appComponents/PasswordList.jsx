@@ -67,7 +67,7 @@ export const columns = [
       const handleDelete = async () => {
         try {
           const response = await axios.delete(
-            `http://127.0.0.1:8000/api/passwords/${password.id}/`,
+            `https://api-strongify.up.railway.app/api/passwords/${password.id}/`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,

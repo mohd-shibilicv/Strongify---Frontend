@@ -39,7 +39,7 @@ export function LoginButton() {
       email: email,
       password: password,
     };
-    const url = "http://127.0.0.1:8000/api/login/";
+    const url = "https://api-strongify.up.railway.app/api/login/";
     const options = {
       method: "POST",
       headers: {

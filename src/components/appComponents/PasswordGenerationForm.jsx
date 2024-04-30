@@ -142,7 +142,7 @@ export default function PasswordGenerationForm() {
       notes: formValues.notes,
       password: generatedPassword,
     };
-    const url = "http://127.0.0.1:8000/api/passwords/";
+    const url = "https://api-strongify.up.railway.app/api/passwords/";
     const options = {
       method: "POST",
       headers: {

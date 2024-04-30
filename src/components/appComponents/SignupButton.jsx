@@ -64,7 +64,7 @@ export function SignupButton() {
       email: values.email,
       password: values.password,
     };
-    const url = "http://127.0.0.1:8000/api/register/";
+    const url = "https://api-strongify.up.railway.app/api/register/";
     const options = {
       method: "POST",
       headers: {
