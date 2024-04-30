@@ -28,7 +28,8 @@ const Navbar = () => {
   const handleLogout = () => {
     dispatch(authSlice.actions.logout());
     toast({
-      title: <p className="text-md dark:text-white">Successfully logged out!</p>,
+      title: <p className="text-md">Successfully logged out!</p>,
+      className: "bg-black text-red-500 rounded-xl shadow-lg",
     });
     navigate("/");
   };
@@ -51,10 +52,10 @@ const Navbar = () => {
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button className="border border-black dark:border-white hover:border-red-500 dark:hover:border-red-500 rounded px-2">
-                    <LogOut color="#FF0000a1" />
+                    <LogOut className="text-black dark:text-white hover:text-red-500 dark:hover:text-red-500" />
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="text-white">
+                <AlertDialogContent className="text-black bg-white dark:bg-black dark:text-white">
                   <AlertDialogHeader>
                     <AlertDialogTitle>
                       Are you absolutely sure?

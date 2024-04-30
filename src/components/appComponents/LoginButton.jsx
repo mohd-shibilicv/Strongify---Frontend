@@ -64,8 +64,9 @@ export function LoginButton() {
       );
       toast({
         title: (
-          <p className="text-green-500 text-md">Successfully logged in!</p>
+          <p className="text-md">Successfully logged in!</p>
         ),
+        className: "bg-black text-green-500 rounded-xl shadow-lg",
       });
       navigate("/");
     }

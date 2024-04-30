@@ -2,8 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   token: null,
-  refreshToken: null, 
-  account: null
+  refreshToken: null,
+  account: null,
 };
 
 const authSlice = createSlice({
@@ -21,8 +21,8 @@ const authSlice = createSlice({
       state.account = null;
       state.refreshToken = null;
       state.token = null;
-    }
-  }
+    },
+  },
 });
 
 export default authSlice;

@@ -1,7 +1,7 @@
 import "./App.css";
 import Navbar from "./layouts/Navbar";
 import PasswordGenerationPage from "./pages/PasswordGenerationPage";
-import PasswordList from "./components/appComponents/PasswordList";
+import PasswordListPage from "./pages/PasswordListPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import Error404Page from "./layouts/Error404Page";
@@ -21,7 +21,7 @@ function App() {
           path="/passwords"
           element={
             <ProtectedRoute>
-              <PasswordList />
+              <PasswordListPage />
             </ProtectedRoute>
           }
         />

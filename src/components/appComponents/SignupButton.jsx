@@ -94,6 +94,7 @@ export function SignupButton() {
             Successfully created your account!
           </p>
         ),
+        className: "bg-black text-green-500 rounded-xl shadow-lg",
       });
     }
   };

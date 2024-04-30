@@ -32,10 +32,16 @@ import { Textarea } from "../ui/textarea";
 import { Checkbox } from "../ui/checkbox";
 import { Check, Copy } from "lucide-react";
 import { toast } from "../ui/use-toast";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 export default function PasswordGenerationForm() {
+  const userId = useSelector((state) => state.auth?.account?.id);
+  const isAuthenticated = useSelector((state) => state.auth?.account);
+  const token = useSelector((state) => state.auth?.token);
   const [generatedPassword, setGeneratedPassword] = useState("");
   const [copySuccess, setCopySuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formValues, setFormValues] = useState({
     title: "",
@@ -46,6 +52,7 @@ export default function PasswordGenerationForm() {
     includeUppercase: false,
     includeSymbols: false,
   });
+  const navigate = useNavigate();
 
   const generatePassword = () => {
     const {
@@ -115,6 +122,7 @@ export default function PasswordGenerationForm() {
               Copied to clipboard!
             </p>
           ),
+          className: "bg-black rounded-lg shadow-lg",
         });
         setTimeout(() => {
           setCopySuccess(false);
@@ -123,6 +131,64 @@ export default function PasswordGenerationForm() {
       .catch((error) => {
         console.error("Error copying to clipboard:", error);
       });
+  };
+
+  const handlePasswordSave = async (e) => {
+    setLoading(true);
+
+    const data = {
+      user_id: userId,
+      title: formValues.title,
+      notes: formValues.notes,
+      password: generatedPassword,
+    };
+    const url = "http://127.0.0.1:8000/api/passwords/";
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    };
+
+    try {
+      const response = await fetch(url, options);
+      if (response.status !== 201 && response.status !== 200) {
+        const data = await response.json();
+        setLoading(false);
+        toast({
+          title: <p className="text-red-500 text-lg">Error</p>,
+          description: (
+            <pre className="mt-2 w-[340px] rounded-md text-white p-4">
+              <code className="text-red-500 text-wrap">
+                {data.non_field_errors
+                  ? `${data.non_field_errors[0]}`
+                  : "An error occurred while saving the password."}
+              </code>
+            </pre>
+          ),
+        });
+      } else {
+        setLoading(false);
+        const data = await response.json();
+        toast({
+          title: <p className="text-md">Password saved!</p>,
+          className: "bg-black text-green-500 rounded-lg shadow-lg",
+        });
+        navigate("/passwords");
+      }
+    } catch (error) {
+      setLoading(false);
+      toast({
+        title: (
+          <p className="text-md">
+            An error occurred while saving the password.
+          </p>
+        ),
+        className: "bg-black text-red-500 rounded-lg shadow-lg",
+      });
+    }
   };
 
   return (
@@ -308,12 +374,38 @@ export default function PasswordGenerationForm() {
                     )}
                   </Button>
                 </div>
-                <DialogFooter className="sm:justify-start">
+                <DialogFooter className="sm:justify-between">
                   <DialogClose asChild>
                     <Button type="button" variant="secondary">
                       Close
                     </Button>
                   </DialogClose>
+                  {isAuthenticated ? (
+                    <Button
+                      type="button"
+                      className="border border-black dark:hover:border-white dark:bg-white dark:hover:bg-black rounded dark:text-black hover:text-black dark:hover:text-white"
+                      onClick={handlePasswordSave}
+                    >
+                      {loading ? (
+                        <div
+                          className="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-yellow-1000 rounded-full"
+                          role="status"
+                          aria-label="loading"
+                        >
+                          <span className="sr-only">Loading...</span>
+                        </div>
+                      ) : (
+                        "Save Password"
+                      )}
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      className="border border-black dark:bg-white rounded dark:text-black hover:text-black"
+                    >
+                      Login to Save your Password
+                    </Button>
+                  )}
                 </DialogFooter>
               </DialogContent>
             )}
